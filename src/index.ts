@@ -3,6 +3,7 @@ import { portRoutes } from "./modules/port/port.route";
 import { logger } from "@bogeychan/elysia-logger";
 import { AppError } from "./errors/app.error";
 import { ZodError } from "zod";
+import { ApiResponse } from "./types/api-response";
 
 export const app = new Elysia();
 
@@ -14,9 +15,10 @@ app.use(
 
 app
   .error({ AppError })
-  .onError(({ error }) => {
+  .onError(({ error }): ApiResponse<any> => {
     if (error instanceof ZodError) {
       return {
+        data: null,
         error: {
           code: "ZOD_VALIDATION_ERROR",
           message: error.message
@@ -26,6 +28,7 @@ app
 
     if (error instanceof AppError) {
       return {
+        data: null,
         error: {
           code: error.code,
           message: error.message,
@@ -35,6 +38,7 @@ app
 
     console.error(error)
     return {
+      data: null,
       error: {
         code: "INTERNAL_SERVER_ERROR",
         message: "Something went wrong. Please contact the IT Support."
