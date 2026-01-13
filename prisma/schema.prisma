@@ -33,3 +33,17 @@ model Port {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model Vessel {
+  id            String      @id @default(uuid())
+  vesselName    String
+  voyageNumber  String
+  etd           DateTime?
+  closingReefer DateTime?
+
+  isActive      Boolean     @default(true)
+  createdBy     String
+  updatedBy     String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}

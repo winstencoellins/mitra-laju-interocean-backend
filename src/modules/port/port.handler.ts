@@ -1,7 +1,7 @@
 import prisma from "../../db/client";
 import { ApiResponse } from "../../types/api-response";
 import { PortAlreadyExistsError, PortNotFoundError } from "./port.error";
-import { portDetailSchema, portSchema, PortSchema, PortDetailSchema, CreatePortSchema, createPortSchema } from "./port.schema";
+import { portDetailSchema, portSchema, PortSchema, PortDetailSchema, CreatePortSchema, createPortSchema, updatePortSchema, UpdatePortSchema } from "./port.schema";
 
 export const getAllPortsHandler = async (): Promise<ApiResponse<PortSchema[]>> => {
     const ports = await prisma.port.findMany({
@@ -71,6 +71,46 @@ export const createPortHandler = async (port: unknown): Promise<ApiResponse<Port
     return response
 }
 
-export const updatePortByIdHandler = async () => {
-    // Implement here
+export const updatePortByIdHandler = async (portId: string, port: unknown) => {
+    const existingPort = await prisma.port.findUnique({
+        where: {
+            id: portId
+        }
+    })
+
+    if (!existingPort) throw new PortNotFoundError(portId)
+
+    const safePort: UpdatePortSchema = updatePortSchema.parse(port)
+
+    const existingPortWithSameNameAndCountry = await prisma.port.findFirst({
+        where: {
+            portName: safePort.portName,
+            portCountry: safePort.portCountry,
+            NOT: {
+                id: portId
+            }
+        }
+    })
+    
+    if (existingPortWithSameNameAndCountry) {
+        throw new PortAlreadyExistsError(safePort.portName!, safePort.portCountry!)
+    }
+
+    const updatedPort = await prisma.port.update({
+        where: {
+            id: portId
+        },
+        data: {
+            ...safePort,
+            updatedBy: "Admin"
+        }
+    })
+
+    const safeResponse: PortDetailSchema = portDetailSchema.parse(updatedPort)
+
+    const response: ApiResponse<PortDetailSchema> = {
+        data: safeResponse
+    }
+
+    return response
 }

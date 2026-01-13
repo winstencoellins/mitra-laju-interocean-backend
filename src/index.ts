@@ -4,8 +4,12 @@ import { logger } from "@bogeychan/elysia-logger";
 import { AppError } from "./errors/app.error";
 import { ZodError } from "zod";
 import { ApiResponse } from "./types/api-response";
+import { vesselRoutes } from "./modules/vessel/vessel.route";
+import openapi from "@elysiajs/openapi";
 
 export const app = new Elysia();
+
+app.use(openapi())
 
 app.use(
   logger({
@@ -41,7 +45,7 @@ app
       data: null,
       error: {
         code: "INTERNAL_SERVER_ERROR",
-        message: "Something went wrong. Please contact the IT Support."
+        message: "Something went wrong. Please try again later."
       }
     }
   })
@@ -49,6 +53,7 @@ app
 app.get("/", () => "Hello Elysia")
 
 portRoutes(app)
+vesselRoutes(app)
 
 app.listen(8000)
 
