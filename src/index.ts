@@ -7,6 +7,7 @@ import { ApiResponse } from "./types/api-response";
 import { vesselRoutes } from "./modules/vessel/vessel.route";
 import openapi from "@elysiajs/openapi";
 import { customerRoutes } from "./modules/customer/customer.route";
+import { vendorRoutes } from "./modules/vendor/vendor.route";
 
 export const app = new Elysia();
 
@@ -56,6 +57,7 @@ app.get("/", () => "Hello Elysia")
 portRoutes(app)
 vesselRoutes(app)
 customerRoutes(app)
+vendorRoutes(app)
 
 app.listen(8000)
 

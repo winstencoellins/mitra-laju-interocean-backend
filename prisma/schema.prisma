@@ -60,3 +60,16 @@ model Customer {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+model Vendor {
+  id            String      @id @default(uuid())
+  vendorCode    String      @unique
+  vendorName    String
+  npwp          String?
+
+  isActive      Boolean  @default(true)
+  createdBy     String
+  updatedBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
