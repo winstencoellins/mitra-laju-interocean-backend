@@ -6,6 +6,7 @@ import { ZodError } from "zod";
 import { ApiResponse } from "./types/api-response";
 import { vesselRoutes } from "./modules/vessel/vessel.route";
 import openapi from "@elysiajs/openapi";
+import { customerRoutes } from "./modules/customer/customer.route";
 
 export const app = new Elysia();
 
@@ -54,6 +55,7 @@ app.get("/", () => "Hello Elysia")
 
 portRoutes(app)
 vesselRoutes(app)
+customerRoutes(app)
 
 app.listen(8000)
 

@@ -1,5 +1,5 @@
 import { t } from 'elysia'
-import { createVesselHandler, getAllVesselsHandler, getVesselByIdHandler } from "./vessel.handler";
+import { createVesselHandler, getAllVesselsHandler, getVesselByIdHandler, updateVesselHandler } from "./vessel.handler";
 
 export function vesselRoutes(app: any) {
     app.get('/vessels', getAllVesselsHandler)
@@ -9,4 +9,5 @@ export function vesselRoutes(app: any) {
         })
     })
     app.post('/vessels', ({ body }: { body: unknown }) => createVesselHandler(body))
+    app.put('/vessels/:id', ({ params, body }: { params: { id: string }, body: unknown }) => updateVesselHandler(params.id, body))
 }

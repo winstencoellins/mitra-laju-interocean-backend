@@ -1,7 +1,7 @@
 import prisma from "../../db/client";
 import { ApiResponse } from "../../types/api-response";
 import { VesselAlreadyExistsError, VesselNotFoundError } from "./vessel.error";
-import { CreateVesselSchema, vesselDetailSchema, VesselDetailSchema, vesselSchema, VesselSchema, createVesselSchema } from "./vessel.schema";
+import { CreateVesselSchema, vesselDetailSchema, VesselDetailSchema, vesselSchema, VesselSchema, createVesselSchema, UpdateVesselSchema, updateVesselSchema } from "./vessel.schema";
 
 export const getAllVesselsHandler = async (): Promise<ApiResponse<VesselSchema[]>> => {
     const vessels = await prisma.vessel.findMany({
@@ -62,8 +62,8 @@ export const createVesselHandler = async (vessel: unknown): Promise<ApiResponse<
         data: {
             vesselName: safeVessel.vesselName,
             voyageNumber: safeVessel.voyageNumber,
-            etd: safeVessel.etd ? safeVessel.etd : undefined,
-            closingReefer: safeVessel.closingReefer ? safeVessel.closingReefer : undefined,
+            etd: safeVessel.etd,
+            closingReefer: safeVessel.closingReefer,
             isActive: true,
             createdBy: "Admin" // Placeholder, replace with actual user info
         }
@@ -76,4 +76,37 @@ export const createVesselHandler = async (vessel: unknown): Promise<ApiResponse<
     }
 
     return response;
+}
+
+export const updateVesselHandler = async (vesselId: string, vessel: unknown): Promise<ApiResponse<VesselDetailSchema>> => {
+    const safeVessel: UpdateVesselSchema = updateVesselSchema.parse(vessel);
+
+    const existingVessel = await prisma.vessel.findUnique({
+        where: {
+            id: vesselId
+        }
+    });
+
+    if (!existingVessel) {
+        throw new VesselNotFoundError(vesselId);
+    }
+
+    const updatedVessel = await prisma.vessel.update({
+        where: {
+            id: vesselId
+        },
+        data: {
+            ...safeVessel,
+            updatedBy: "Admin" // Placeholder, replace with actual user info
+        }
+    });
+
+    const safeResponse: VesselDetailSchema = vesselDetailSchema.parse(updatedVessel);
+
+    const response: ApiResponse<VesselDetailSchema> = {
+        data: safeResponse,
+    }
+
+    return response;
+    
 }
