@@ -26,6 +26,30 @@ export const getVendorByIdHandler = async (vendorId: string): Promise<ApiRespons
     const vendor = await prisma.vendor.findUnique({
         where: {
             id: vendorId
+        },
+        include: {
+            vendorLocations: {
+                select: {
+                    id: true,
+                    addressLine1: true,
+                    addressLine2: true,
+                    addressLine3: true,
+                    city: true,
+                    province: true,
+                    country: true,
+                    postalCode: true,
+                    isActive: true,
+                    vendorContacts: {
+                        select: {
+                            id: true,
+                            contactName: true,
+                            phoneNumber: true,
+                            email: true,
+                            isActive: true,
+                        }
+                    }
+                },
+            },
         }
     });
 
@@ -118,4 +142,36 @@ export const updateVendorHandler = async (vendorId: string, vendor: unknown): Pr
     }
 
     return response;
+}
+
+// Vendor Location Handlers
+export const getVendorLocationByIdHandler = async (locationId: string, vendorId: string): Promise<ApiResponse<any>> => {
+    // Implementation here
+    throw new Error("Not implemented");
+}
+
+export const createVendorLocationHandler = async (vendorId: string): Promise<ApiResponse<any>> => {
+    // Implementation here
+    throw new Error("Not implemented");
+}
+
+export const updateVendorLocationHandler = async (locationId: string, vendorId: string): Promise<ApiResponse<any>> => {
+    // Implementation here
+    throw new Error("Not implemented");
+}
+
+// Vendor Contact Handlers
+export const getVendorContactByIdHandler = async (contactId: string, locationId: string): Promise<ApiResponse<any>> => {
+    // Implementation here
+    throw new Error("Not implemented");
+}
+
+export const createVendorContactHandler = async (locationId: string): Promise<ApiResponse<any>> => {
+    // Implementation here
+    throw new Error("Not implemented");
+}
+
+export const updateVendorContactHandler = async (contactId: string, locationId: string): Promise<ApiResponse<any>> => {
+    // Implementation here
+    throw new Error("Not implemented");
 }

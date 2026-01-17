@@ -59,6 +59,46 @@ model Customer {
   updatedBy     String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  customerLocations CustomerLocation[]
+}
+
+model CustomerLocation {
+  id              String      @id @default(uuid())
+  addressLine1    String
+  addressLine2    String?
+  addressLine3    String?
+  city            String
+  province        String
+  country         String
+  postalCode      String?
+
+  isActive        Boolean  @default(true)
+  createdBy       String
+  updatedBy       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  customerId      String
+  customer        Customer  @relation(fields: [customerId], references: [id])
+
+  customerContacts CustomerContact[]
+}
+
+model CustomerContact {
+  id            String      @id @default(uuid())
+  contactName   String
+  phoneNumber   String
+  email         String?
+
+  isActive      Boolean  @default(true)
+  createdBy     String
+  updatedBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  customerLocationId String
+  customerLocation   CustomerLocation @relation(fields: [customerLocationId], references: [id])
 }
 
 model Vendor {
@@ -72,4 +112,44 @@ model Vendor {
   updatedBy     String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  vendorLocations VendorLocation[]
+}
+
+model VendorLocation {
+  id              String      @id @default(uuid())
+  addressLine1    String
+  addressLine2    String?
+  addressLine3    String?
+  city            String
+  province        String
+  country         String
+  postalCode      String?
+
+  isActive        Boolean  @default(true)
+  createdBy       String
+  updatedBy       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  vendorId        String
+  vendor          Vendor  @relation(fields: [vendorId], references: [id])
+
+  vendorContacts VendorContact[]
+}
+
+model VendorContact {
+  id            String      @id @default(uuid())
+  contactName   String
+  phoneNumber   String
+  email         String?
+
+  isActive      Boolean  @default(true)
+  createdBy     String
+  updatedBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  vendorLocationId String
+  vendorLocation   VendorLocation @relation(fields: [vendorLocationId], references: [id])
 }

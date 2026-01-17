@@ -1,7 +1,7 @@
 import prisma from "../../db/client"
 import { ApiResponse } from "../../types/api-response";
 import { CustomerAlreadyExistsError, CustomerNotFoundError } from "./customer.error";
-import { CreateCustomerSchema, customerDetailSchema, CustomerDetailSchema, customerSchema, CustomerSchema, createCustomerSchema, updateCustomerSchema, UpdateCustomerSchema } from "./customer.schema";
+import { CreateCustomerSchema, customerDetailSchema, CustomerDetailSchema, customerSchema, CustomerSchema, createCustomerSchema, updateCustomerSchema, UpdateCustomerSchema, CustomerLocationSchema } from "./customer.schema";
 
 // Customer Handlers
 export const getAllCustomersHandler = async (): Promise<ApiResponse<CustomerSchema[]>> => {
@@ -11,6 +11,7 @@ export const getAllCustomersHandler = async (): Promise<ApiResponse<CustomerSche
             customerName: true,
             customerCode: true,
             npwp: true,
+            isActive: true,
         }
     });
 
@@ -27,6 +28,30 @@ export const getCustomerByIdHandler = async (customerId: string): Promise<ApiRes
     const customer = await prisma.customer.findUnique({
         where: {
             id: customerId
+        },
+        include: {
+            customerLocations: {
+                select: {
+                    id: true,
+                    addressLine1: true,
+                    addressLine2: true,
+                    addressLine3: true,
+                    city: true,
+                    province: true,
+                    country: true,
+                    postalCode: true,
+                    isActive: true,
+                    customerContacts: {
+                        select: {
+                            id: true,
+                            contactName: true,
+                            phoneNumber: true,
+                            email: true,
+                            isActive: true,
+                        }
+                    }
+                },
+            },
         }
     });
 
@@ -119,4 +144,36 @@ export const updateCustomerHandler = async (customerId: string, customer: unknow
     }
 
     return response;
+}
+
+// Customer Location Handlers
+export const getCustomerLocationByIdHandler = async (locationId: string, customerId: string): Promise<ApiResponse<CustomerLocationSchema>> => {
+    // Implementation here
+    throw new Error("Not implemented");
+}
+
+export const createCustomerLocationHandler = async (customerId: string): Promise<ApiResponse<any>> => {
+    // Implementation here
+    throw new Error("Not implemented");
+}
+
+export const updateCustomerLocationHandler = async (locationId: string, customerId: string): Promise<ApiResponse<any>> => {
+    // Implementation here
+    throw new Error("Not implemented");
+}
+
+// Customer Contact Handlers
+export const getCustomerContactByIdHandler = async (contactId: string, locationId: string): Promise<ApiResponse<any>> => {
+    // Implementation here
+    throw new Error("Not implemented");
+}
+
+export const createCustomerContactHandler = async (locationId: string): Promise<ApiResponse<any>> => {
+    // Implementation here
+    throw new Error("Not implemented");
+}
+
+export const updateCustomerContactHandler = async (contactId: string, locationId: string): Promise<ApiResponse<any>> => {
+    // Implementation here
+    throw new Error("Not implemented");
 }
