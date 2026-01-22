@@ -1,7 +1,7 @@
 import prisma from "../../db/client"
 import { ApiResponse } from "../../types/api-response";
 import { CustomerAlreadyExistsError, CustomerNotFoundError, CustomerLocationNotFoundError } from "./customer.error";
-import { CreateCustomerSchema, customerDetailSchema, CustomerDetailSchema, customerSchema, CustomerSchema, createCustomerSchema, updateCustomerSchema, UpdateCustomerSchema, CustomerLocationSchema, customerLocationSchema, CreateCustomerLocationSchema } from "./customer.schema";
+import { CreateCustomerSchema, customerDetailSchema, CustomerDetailSchema, customerSchema, CustomerSchema, createCustomerSchema, updateCustomerSchema, UpdateCustomerSchema, CustomerLocationSchema, customerLocationSchema, CreateCustomerLocationSchema, UpdateCustomerLocationSchema, updateCustomerLocationSchema, createCustomerLocationSchema } from "./customer.schema";
 
 // Customer Handlers
 export const getAllCustomersHandler = async (): Promise<ApiResponse<CustomerSchema[]>> => {
@@ -182,29 +182,106 @@ export const getCustomerLocationByIdHandler = async (locationId: string, custome
     return response
 }
 
-export const createCustomerLocationHandler = async (customerId: string, customerLocation: CreateCustomerLocationSchema): Promise<ApiResponse<CustomerLocationSchema>> => {
-    // Implementation here
-    // const safeCustomer: CustomerLocationSchema = customerLocationSchema.parse(customerLocation);
+export const createCustomerLocationHandler = async (customerId: string, customerLocation: unknown): Promise<ApiResponse<CustomerLocationSchema>> => {
+    const safeCustomerLocation: CreateCustomerLocationSchema = createCustomerLocationSchema.parse(customerLocation);
 
-    // const newLocation = await prisma.customerLocation.create({
-    //     data: {
-    //         addressLine1: safeCustomer.addressLine1,
-    //         addressLine2: safeCustomer.addressLine2,
-    //         addressLine3: safeCustomer.addressLine3,
-    //         city: safeCustomer.city,
-    //         province: safeCustomer.province,
-    //         country: safeCustomer.country,
-    //         postalCode: safeCustomer.postalCode,
-    //         customerId: customerId,
-    //         createdBy: "Admin", // Placeholder, replace with actual user info
-    //     }
-    // });
-    throw new Error("Not implemented");
+    const newLocation = await prisma.customerLocation.create({
+        data: {
+            addressLine1: safeCustomerLocation.addressLine1,
+            addressLine2: safeCustomerLocation.addressLine2,
+            addressLine3: safeCustomerLocation.addressLine3,
+            city: safeCustomerLocation.city,
+            province: safeCustomerLocation.province,
+            country: safeCustomerLocation.country,
+            postalCode: safeCustomerLocation.postalCode,
+            customerId: customerId,
+            createdBy: "Admin", // Placeholder, replace with actual user info
+        },
+        select: {
+            id: true,
+            addressLine1: true,
+            addressLine2: true,
+            addressLine3: true,
+            city: true,
+            province: true,
+            country: true,
+            postalCode: true,
+            customerContacts: {
+                select: {
+                    id: true,
+                    contactName: true,
+                    phoneNumber: true,
+                    email: true,
+                    isActive: true
+                }
+            },
+            isActive: true,
+        }
+    });
+
+    const safeNewLocation: CustomerLocationSchema = customerLocationSchema.parse(newLocation);
+
+    const response: ApiResponse<CustomerLocationSchema> = {
+        data: safeNewLocation
+    }
+
+    return response;
 }
 
-export const updateCustomerLocationHandler = async (locationId: string, customerId: string): Promise<ApiResponse<any>> => {
-    // Implementation here
-    throw new Error("Not implemented");
+export const updateCustomerLocationHandler = async (locationId: string, customerId: string, customerLocation: unknown): Promise<ApiResponse<CustomerLocationSchema>> => {
+    const safeCustomerLocation: UpdateCustomerLocationSchema = updateCustomerLocationSchema.parse(customerLocation);
+
+    const existingCustomerLocation = await prisma.customerLocation.findUnique({
+        where: {
+            id: locationId
+        }
+    });
+
+    if (!existingCustomerLocation) {
+        throw new CustomerLocationNotFoundError(locationId);
+    }
+
+    if (existingCustomerLocation.customerId !== customerId) {
+        throw new CustomerNotFoundError(customerId);
+    }
+
+    const updatedCustomerLocation = await prisma.customerLocation.update({
+        where: {
+            id: locationId
+        },
+        data: {
+            ...safeCustomerLocation,
+            updatedBy: "Admin", // Placeholder, replace with actual user info
+        },
+        select: {
+            id: true,
+            addressLine1: true,
+            addressLine2: true,
+            addressLine3: true,
+            city: true,
+            province: true,
+            country: true,
+            postalCode: true,
+            customerContacts: {
+                select: {
+                    id: true,
+                    contactName: true,
+                    phoneNumber: true,
+                    email: true,
+                    isActive: true
+                }
+            },
+            isActive: true,
+        }
+    });
+
+    const safeUpdatedCustomerLocation: CustomerLocationSchema = customerLocationSchema.parse(updatedCustomerLocation);
+
+    const response: ApiResponse<CustomerLocationSchema> = {
+        data: safeUpdatedCustomerLocation
+    }
+
+    return response;
 }
 
 // Customer Contact Handlers
