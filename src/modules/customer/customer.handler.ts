@@ -1,7 +1,7 @@
 import prisma from "../../db/client"
 import { ApiResponse } from "../../types/api-response";
-import { CustomerAlreadyExistsError, CustomerNotFoundError } from "./customer.error";
-import { CreateCustomerSchema, customerDetailSchema, CustomerDetailSchema, customerSchema, CustomerSchema, createCustomerSchema, updateCustomerSchema, UpdateCustomerSchema, CustomerLocationSchema } from "./customer.schema";
+import { CustomerAlreadyExistsError, CustomerNotFoundError, CustomerLocationNotFoundError } from "./customer.error";
+import { CreateCustomerSchema, customerDetailSchema, CustomerDetailSchema, customerSchema, CustomerSchema, createCustomerSchema, updateCustomerSchema, UpdateCustomerSchema, CustomerLocationSchema, customerLocationSchema, CreateCustomerLocationSchema } from "./customer.schema";
 
 // Customer Handlers
 export const getAllCustomersHandler = async (): Promise<ApiResponse<CustomerSchema[]>> => {
@@ -148,12 +148,57 @@ export const updateCustomerHandler = async (customerId: string, customer: unknow
 
 // Customer Location Handlers
 export const getCustomerLocationByIdHandler = async (locationId: string, customerId: string): Promise<ApiResponse<CustomerLocationSchema>> => {
-    // Implementation here
-    throw new Error("Not implemented");
+    const customerLocation = await prisma.customerLocation.findFirst(
+        {
+            where: {
+                id: locationId,
+            },
+            include: {
+                customerContacts: {
+                    select: {
+                        id: true,
+                        contactName: true,
+                        phoneNumber: true,
+                        email: true,
+                        isActive: true
+                    }
+                }
+            }
+        }
+    )
+
+    if (!customerLocation) throw new CustomerLocationNotFoundError(locationId);
+
+    if (customerLocation.customerId !== customerId) {
+        throw new CustomerNotFoundError(customerId);
+    }
+
+    const safeCustomerLocation: CustomerLocationSchema = customerLocationSchema.parse(customerLocation);
+
+    const response: ApiResponse<CustomerLocationSchema> = {
+        data: safeCustomerLocation
+    }
+
+    return response
 }
 
-export const createCustomerLocationHandler = async (customerId: string): Promise<ApiResponse<any>> => {
+export const createCustomerLocationHandler = async (customerId: string, customerLocation: CreateCustomerLocationSchema): Promise<ApiResponse<CustomerLocationSchema>> => {
     // Implementation here
+    // const safeCustomer: CustomerLocationSchema = customerLocationSchema.parse(customerLocation);
+
+    // const newLocation = await prisma.customerLocation.create({
+    //     data: {
+    //         addressLine1: safeCustomer.addressLine1,
+    //         addressLine2: safeCustomer.addressLine2,
+    //         addressLine3: safeCustomer.addressLine3,
+    //         city: safeCustomer.city,
+    //         province: safeCustomer.province,
+    //         country: safeCustomer.country,
+    //         postalCode: safeCustomer.postalCode,
+    //         customerId: customerId,
+    //         createdBy: "Admin", // Placeholder, replace with actual user info
+    //     }
+    // });
     throw new Error("Not implemented");
 }
 
