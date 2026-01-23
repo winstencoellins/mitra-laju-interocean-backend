@@ -11,6 +11,7 @@ export const customerContactSchema = z.object({
 
 export const customerContactDetailSchema = z.object({
     id: z.string(),
+    customerLocationId: z.string(),
     contactName: z.string(),
     phoneNumber: z.string(),
     email: z.email().nullable(),
@@ -50,6 +51,7 @@ export const customerLocationSchema = z.object({
 
 export const customerLocationDetailSchema = z.object({
     id: z.string(),
+    customerId: z.string(),
     addressLine1: z.string(),
     addressLine2: z.string().nullable(),
     addressLine3: z.string().nullable(),
