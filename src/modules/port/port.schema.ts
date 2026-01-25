@@ -25,8 +25,8 @@ export const portDetailSchema = z.object({
     isActive: z.boolean(),
     createdBy: z.string(),
     updatedBy: z.string().nullable(),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
 })
 
 export type CreatePortSchema = z.infer<typeof createPortSchema>;

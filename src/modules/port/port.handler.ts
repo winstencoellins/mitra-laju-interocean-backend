@@ -103,7 +103,7 @@ export const updatePortByIdHandler = async (portId: string, port: unknown) => {
         data: {
             ...safePort,
             updatedBy: "Admin"
-        }
+        },
     })
 
     const safeResponse: PortDetailSchema = portDetailSchema.parse(updatedPort)
