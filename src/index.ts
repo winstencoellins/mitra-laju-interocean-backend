@@ -21,8 +21,9 @@ app.use(
 
 app
   .error({ AppError })
-  .onError(({ error }): ApiResponse<any> => {
+  .onError(({ error, set }): ApiResponse<any> => {
     if (error instanceof ZodError) {
+      set.status = 422
       return {
         data: null,
         error: {
@@ -33,6 +34,7 @@ app
     }
 
     if (error instanceof AppError) {
+      set.status = error.statusCode
       return {
         data: null,
         error: {
@@ -43,6 +45,7 @@ app
     }
 
     console.error(error)
+    set.status = 500
     return {
       data: null,
       error: {
