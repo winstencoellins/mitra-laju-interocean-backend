@@ -13,10 +13,22 @@ export class CustomerAlreadyExistsError extends AppError {
     }
 }
 
+export class CustomerLocationNotInCustomerError extends AppError {
+    constructor(locationId: string) {
+        super(`Location with ID ${locationId} is not associated with the customer.`, "CUSTOMER_LOCATION_NOT_IN_CUSTOMER_ERROR", 403);
+    }
+}
+
 // Customer Location Errors
 export class CustomerLocationNotFoundError extends AppError {
     constructor(locationId: string) {
         super(`Customer location with ID ${locationId} not found.`, "CUSTOMER_LOCATION_NOT_FOUND_ERROR", 404);
+    }
+}
+
+export class CustomerContactNotInLocationError extends AppError {
+    constructor(contactId: string) {
+        super(`Contact with ID ${contactId} is not associated with this location.`, "CUSTOMER_CONTACT_NOT_IN_LOCATION_ERROR", 403);
     }
 }
 

@@ -1,6 +1,6 @@
 import prisma from "../../db/client"
 import { ApiResponse } from "../../types/api-response";
-import { CustomerAlreadyExistsError, CustomerNotFoundError, CustomerLocationNotFoundError, CustomerContactNotFoundError } from "./customer.error";
+import { CustomerAlreadyExistsError, CustomerNotFoundError, CustomerLocationNotFoundError, CustomerContactNotFoundError, CustomerContactNotInLocationError, CustomerLocationNotInCustomerError } from "./customer.error";
 import { CreateCustomerSchema, customerDetailSchema, CustomerDetailSchema, customerSchema, CustomerSchema, createCustomerSchema, updateCustomerSchema, UpdateCustomerSchema, CreateCustomerLocationSchema, UpdateCustomerLocationSchema, updateCustomerLocationSchema, createCustomerLocationSchema, CustomerLocationDetailSchema, customerLocationDetailSchema, CustomerContactDetailSchema, customerContactDetailSchema, CreateCustomerContactSchema, createCustomerContactSchema, updateCustomerContactSchema, UpdateCustomerContactSchema } from "./customer.schema";
 
 // Customer Handlers
@@ -181,7 +181,7 @@ export const getCustomerLocationByIdHandler = async (locationId: string, custome
     if (!customerLocation) throw new CustomerLocationNotFoundError(locationId);
 
     if (customerLocation.customerId !== customerId) {
-        throw new CustomerNotFoundError(customerId);
+        throw new CustomerLocationNotInCustomerError(locationId);
     }
 
     const safeCustomerLocation: CustomerLocationDetailSchema = customerLocationDetailSchema.parse(customerLocation);
@@ -249,6 +249,16 @@ export const updateCustomerLocationHandler = async (locationId: string, customer
     }
 
     if (existingCustomerLocation.customerId !== customerId) {
+        throw new CustomerLocationNotInCustomerError(locationId);
+    }
+
+    const existingCustomer = await prisma.customer.findUnique({
+        where: {
+            id: customerId
+        }
+    });
+
+    if (!existingCustomer) {
         throw new CustomerNotFoundError(customerId);
     }
 
@@ -313,7 +323,7 @@ export const getCustomerContactByIdHandler = async (contactId: string, locationI
     }
 
     if (customerContact.customerLocationId !== locationId) {
-        throw new CustomerLocationNotFoundError(locationId);
+        throw new CustomerContactNotInLocationError(contactId);
     }
 
     const customerLocation = await prisma.customerLocation.findUnique({
@@ -327,7 +337,7 @@ export const getCustomerContactByIdHandler = async (contactId: string, locationI
     }
 
     if (customerLocation.customerId !== customerId) {
-        throw new CustomerNotFoundError(customerId);
+        throw new CustomerLocationNotInCustomerError(locationId);
     }
 
     const safeCustomerContact: CustomerContactDetailSchema = customerContactDetailSchema.parse(customerContact);
@@ -342,16 +352,6 @@ export const getCustomerContactByIdHandler = async (contactId: string, locationI
 export const createCustomerContactHandler = async (locationId: string, customerId: string, customerContact: unknown): Promise<ApiResponse<CustomerContactDetailSchema>> => {
     const safeCustomerContact: CreateCustomerContactSchema = createCustomerContactSchema.parse(customerContact);
 
-    const existingCustomer = await prisma.customer.findUnique({
-        where: {
-            id: customerId
-        }
-    });
-
-    if (!existingCustomer) {
-        throw new CustomerNotFoundError(customerId);
-    }
-
     const existingCustomerLocation = await prisma.customerLocation.findUnique({
         where: {
             id: locationId
@@ -363,6 +363,16 @@ export const createCustomerContactHandler = async (locationId: string, customerI
     }
 
     if (existingCustomerLocation.customerId !== customerId) {
+        throw new CustomerLocationNotInCustomerError(locationId);
+    }
+
+    const existingCustomer = await prisma.customer.findUnique({
+        where: {
+            id: customerId
+        }
+    });
+
+    if (!existingCustomer) {
         throw new CustomerNotFoundError(customerId);
     }
 
@@ -411,7 +421,7 @@ export const updateCustomerContactHandler = async (contactId: string, locationId
     }
 
     if (existingCustomerContact.customerLocationId !== locationId) {
-        throw new CustomerLocationNotFoundError(locationId);
+        throw new CustomerContactNotInLocationError(contactId);
     }
 
     const existingCustomerLocation = await prisma.customerLocation.findUnique({
@@ -425,7 +435,7 @@ export const updateCustomerContactHandler = async (contactId: string, locationId
     }
     
     if (existingCustomerLocation.customerId !== customerId) {
-        throw new CustomerNotFoundError(customerId);
+        throw new CustomerLocationNotInCustomerError(locationId);
     }
 
     const existingCustomer = await prisma.customer.findUnique({

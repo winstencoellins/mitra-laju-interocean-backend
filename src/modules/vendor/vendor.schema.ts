@@ -50,6 +50,7 @@ export const vendorLocationSchema = z.object({
 
 export const vendorLocationDetailSchema = z.object({
     id: z.string(),
+    vendorId: z.string(),
     addressLine1: z.string(),
     addressLine2: z.string().nullable(),
     addressLine3: z.string().nullable(),
